@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
@@ -7,26 +6,24 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-const PredictionGraph = () => {
-  const [isClient, setIsClient] = useState(false);
+interface PredictionGraphProps {
+  title: string;
+  xAxis: number[];
+  yAxis: number[];
+  scale: number[];
+}
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
+const PredictionGraph: React.FC<PredictionGraphProps> = ({
+  title,
+  xAxis,
+  yAxis,
+  scale,
+}) => {
   const chartData: { series: ApexAxisChartSeries; options: ApexOptions } = {
     series: [
       {
-        name: "Net Profit",
-        data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-      },
-      {
-        name: "Revenue",
-        data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-      },
-      {
-        name: "Free Cash Flow",
-        data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
+        name: title,
+        data: yAxis,
       },
     ],
     options: {
@@ -57,32 +54,23 @@ const PredictionGraph = () => {
         enabled: false,
       },
       xaxis: {
-        categories: [
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-        ],
+        categories: xAxis, // Directly using number[]
         labels: {
-          formatter: (value: string) => {
-            return ["Mar", "May", "Jul", "Sep", "Nov"].includes(value)
-              ? value
-              : ""; // Show only these months, hide others
+          formatter: (value: string | number) => {
+            const numValue = Number(value);
+            return scale.includes(numValue) ? numValue.toString() : "";
           },
         },
         title: {
-          text: "time",
+          text: "Time (in units)", // Customize the label for the x-axis
         },
       },
       yaxis: {
         title: {
-          text: "$ (thousands)",
+          text: "Value",
+        },
+        labels: {
+          formatter: (value: number) => Math.round(value).toString(),
         },
       },
       fill: {
@@ -90,7 +78,7 @@ const PredictionGraph = () => {
       },
       tooltip: {
         y: {
-          formatter: (val: number) => `$ ${val} thousands`,
+          formatter: (val: number) => `${val}`,
         },
       },
     },
@@ -98,16 +86,16 @@ const PredictionGraph = () => {
 
   return (
     <div>
-      {isClient && (
-        <div id="chart">
-          <ReactApexChart
-            options={chartData.options}
-            series={chartData.series}
-            type="line" // Set type to 'line'
-            height={350}
-          />
-        </div>
-      )}
+      <div className="font-bold text-4xl">{title}</div>
+
+      <div id="chart">
+        <ReactApexChart
+          options={chartData.options}
+          series={chartData.series}
+          type="line"
+          height={350}
+        />
+      </div>
       <div id="html-dist"></div>
     </div>
   );

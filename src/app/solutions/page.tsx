@@ -17,6 +17,9 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { unserialize } from "php-serialize";
 import PredictionGraph from "@/components/PredictionGraph";
+import { useState } from "react";
+import YieldLossGraph from "@/components/YieldLossGraph";
+import Loading from "@/components/Loading";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -29,11 +32,13 @@ const formSchema = z.object({
 });
 
 const Solutions = () => {
+  const [pred, setPred] = useState<any>();
+  const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    setLoading(true);
     try {
       const coordinates = await axios.get(
         "http://www.geoplugin.net/extras/forward_place.gp",
@@ -45,8 +50,6 @@ const Solutions = () => {
         }
       );
       const parsedCoordinates = await unserialize(`${coordinates.data}`);
-
-      // console.log("lat: ", parsedCoordinates[0].geoplugin_latitude);
 
       const weather = await axios.get(
         "https://api.open-meteo.com/v1/forecast",
@@ -60,17 +63,23 @@ const Solutions = () => {
           },
         }
       );
-      console.log("weather:", weather.data);
-      const prediction = await axios.get("api ko", {
-        params: {
-          cropAge: "crop age",
-          cropGen: "crop gen",
-          temp: "temp",
-          humidity: "humidity",
-          rainfall: "rainfall",
-        },
-      });
-    } catch (error) {}
+      const inputData = {
+        crop_age_in_days: values.cropAge,
+        crop_generation: values.cropGen,
+        field_area_in_hectares: values.area,
+        temperature_celsius: weather.data.current.temperature_2m,
+        relative_humidity_percent: weather.data.relative_humidity_2m,
+        rainfall_mm: weather.data.rain,
+      };
+      const prediction = await axios.post(
+        "http://192.168.1.118:5000/predict",
+        inputData
+      );
+      setPred(prediction.data);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -179,7 +188,43 @@ const Solutions = () => {
             </div>
           </div>
         </div>
-        <PredictionGraph />
+        {loading ? (
+          <Loading />
+        ) : (
+          <div>
+            {pred && (
+              <PredictionGraph
+                title="Pest Incidence Prediction Per Hour"
+                xAxis={pred.pest_incidence_per_hour.x_axis}
+                yAxis={pred.pest_incidence_per_hour.y_axis}
+                scale={[0, 500, 1000, 1500, 2000, 2500, 3000, 3500]}
+              />
+            )}
+            {pred && (
+              <PredictionGraph
+                title="Pest Incidence Prediction Per Hour"
+                xAxis={pred.pest_incidence_per_day.x_axis}
+                yAxis={pred.pest_incidence_per_day.y_axis}
+                scale={[0, 25, 50, 75, 100, 125, 150]}
+              />
+            )}
+            {pred && (
+              <YieldLossGraph
+                actualYieldLoss={
+                  pred.actual_vs_predicted_yield_loss.actual_yield_loss_percent
+                }
+                predictedYieldLoss={
+                  pred.actual_vs_predicted_yield_loss
+                    .predicted_yield_loss_percent
+                }
+                xAxis={pred.actual_vs_predicted_yield_loss.x_axis}
+                title="Actual Yield Loss vs Predicted Yield Loss"
+                scale={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]}
+                error={pred.mean_absolute_error_yield.toFixed(2)}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
