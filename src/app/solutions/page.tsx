@@ -102,10 +102,7 @@ const Solutions = () => {
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="e.g. Tuguegarao City"
-                            {...field}
-                          />
+                          <Input placeholder="e.g. Tuguegarao" {...field} />
                         </FormControl>
                         <FormDescription></FormDescription>
                         <FormMessage />
