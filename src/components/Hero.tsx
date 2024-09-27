@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -32,11 +33,13 @@ const Hero = () => {
           </Link>
         </div>
         <div>
-          <img
-            src="https://images.unsplash.com/photo-1486754735734-325b5831c3ad?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="3 women looking at a laptop"
-            className="object-cover w-full h-64 bg-gray-100 md:h-full"
+          <Image
+            src="/assets/Photo.avif"
+            className="object-cover w-full h-64 bg-gray-100 md:h-full rounded-lg"
+            alt=""
             loading="lazy"
+            width={1920}
+            height={1080}
           />
         </div>
       </section>

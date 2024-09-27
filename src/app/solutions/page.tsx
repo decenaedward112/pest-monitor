@@ -20,6 +20,8 @@ import PredictionGraph from "@/components/PredictionGraph";
 import { useState } from "react";
 import YieldLossGraph from "@/components/YieldLossGraph";
 import Loading from "@/components/Loading";
+import InvalidAddress from "@/components/InvalidAddress";
+import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -34,6 +36,7 @@ const formSchema = z.object({
 const Solutions = () => {
   const [pred, setPred] = useState<any>();
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -51,6 +54,11 @@ const Solutions = () => {
       );
       const parsedCoordinates = await unserialize(`${coordinates.data}`);
 
+      console.log("asjdhasd", parsedCoordinates);
+
+      if (parsedCoordinates.geoplugin_status !== 200) {
+        setOpen(true);
+      }
       const weather = await axios.get(
         "https://api.open-meteo.com/v1/forecast",
         {
@@ -72,7 +80,7 @@ const Solutions = () => {
         rainfall_mm: weather.data.rain,
       };
       const prediction = await axios.post(
-        "http://192.168.1.118:5000/predict",
+        "http://192.168.43.66:5000/predict",
         inputData
       );
       setPred(prediction.data);
@@ -87,7 +95,7 @@ const Solutions = () => {
       <div className="flex flex-col  flex-1 gap-20">
         <div>
           <p className="text-[#121b0e] tracking-light text-[32px] font-bold leading-tight min-w-72 mb-3">
-            Rice field pest prediction
+            Rice field yellow stem borers prediction
           </p>
           <div className="flex gap-20">
             <div className=" w-1/2">
@@ -116,7 +124,7 @@ const Solutions = () => {
                       <FormItem>
                         <FormLabel>Country Code</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. PH" {...field} />
+                          <Input placeholder="e.g. ph" {...field} />
                         </FormControl>
                         <FormDescription></FormDescription>
                         <FormMessage />
@@ -128,7 +136,7 @@ const Solutions = () => {
                     name="cropAge"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Crop Age</FormLabel>
+                        <FormLabel>Crop Age in days</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -164,7 +172,7 @@ const Solutions = () => {
                     name="area"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Land Area</FormLabel>
+                        <FormLabel>Land Area in hectares</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -223,6 +231,13 @@ const Solutions = () => {
           </div>
         )}
       </div>
+      {open && (
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogContent>
+            <InvalidAddress />
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
