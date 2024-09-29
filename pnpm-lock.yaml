@@ -47,9 +47,6 @@ importers:
       next:
         specifier: 14.2.13
         version: 14.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      php-serialize:
-        specifier: ^5.0.1
-        version: 5.0.1
       react:
         specifier: ^18
         version: 18.3.1
@@ -1855,10 +1852,6 @@ packages:
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
-
-  php-serialize@5.0.1:
-    resolution: {integrity: sha512-+uxULDruX7uwGZmC1HjcvQMg6APyK1wzWXnaRR0Vxb7Vk4YMn5/Chp9tm+ccNqmXOtfZ/oZVbR8GZnPnojltDw==}
-    engines: {node: '>= 8'}
 
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
@@ -4380,8 +4373,6 @@ snapshots:
       minipass: 7.1.2
 
   path-type@4.0.0: {}
-
-  php-serialize@5.0.1: {}
 
   picocolors@1.1.0: {}
 

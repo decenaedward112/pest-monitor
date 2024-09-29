@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
-import { unserialize } from "php-serialize";
 import PredictionGraph from "@/components/PredictionGraph";
 import { useState } from "react";
 import YieldLossGraph from "@/components/YieldLossGraph";
@@ -25,7 +24,6 @@ import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
-  countryCode: z.string().min(2, { message: "Enter a valid country code" }),
   cropAge: z.coerce.number().min(1, { message: "Enter a valid crop age" }),
   cropGen: z.coerce
     .number()
@@ -44,27 +42,26 @@ const Solutions = () => {
     setLoading(true);
     try {
       const coordinates = await axios.get(
-        "http://www.geoplugin.net/extras/forward_place.gp",
+        "https://geocoding-api.open-meteo.com/v1/search",
         {
           params: {
-            place: values.city,
-            country: values.countryCode,
+            name: values.city,
+            count: 1,
+            language: "en",
+            format: "json",
           },
         }
       );
-      const parsedCoordinates = await unserialize(`${coordinates.data}`);
 
-      console.log("asjdhasd", parsedCoordinates);
-
-      if (parsedCoordinates.geoplugin_status !== 200) {
+      if (!coordinates.data.results) {
         setOpen(true);
       }
       const weather = await axios.get(
         "https://api.open-meteo.com/v1/forecast",
         {
           params: {
-            latitude: parsedCoordinates[0].geoplugin_latitude,
-            longitude: parsedCoordinates[0].geoplugin_longitude,
+            latitude: coordinates.data.results[0].latitude,
+            longitude: coordinates.data.results[0].longitude,
             current: "temperature_2m,relative_humidity_2m,rain",
             past_days: 1,
             models: "metno_seamless",
@@ -80,7 +77,7 @@ const Solutions = () => {
         rainfall_mm: weather.data.rain,
       };
       const prediction = await axios.post(
-        "http://192.168.43.66:5000/predict",
+        "http://192.168.1.4:5000/predict",
         inputData
       );
       setPred(prediction.data);
@@ -111,20 +108,6 @@ const Solutions = () => {
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g. Tuguegarao" {...field} />
-                        </FormControl>
-                        <FormDescription></FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="countryCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country Code</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. ph" {...field} />
                         </FormControl>
                         <FormDescription></FormDescription>
                         <FormMessage />
