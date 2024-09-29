@@ -86,7 +86,9 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({
 
   return (
     <div>
-      <div className="font-bold text-4xl">{title}</div>
+      <div className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+        {title}
+      </div>
 
       <div id="chart">
         <ReactApexChart

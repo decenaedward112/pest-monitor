@@ -5,7 +5,7 @@ import Link from "next/link";
 const Header = () => {
   return (
     <div>
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#ebf3e7] px-10 py-3">
+      <header className="flex flex-wrap items-center justify-between whitespace-nowrap border-b border-solid border-b-[#ebf3e7] px-4 py-3 md:px-10">
         <div className="flex items-center gap-4 text-[#121b0e]">
           <div className="size-4">
             <svg
@@ -13,18 +13,19 @@ const Header = () => {
               fill="none"
               xmlns="http://www.w3.org/2000/svg">
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
                 fill="currentColor"></path>
             </svg>
           </div>
-          <h2 className="text-[#121b0e] text-lg font-bold leading-tight tracking-[-0.015em]">
+          <h2 className="text-[#121b0e] text-base font-bold leading-tight tracking-[-0.015em] md:text-lg">
             Siyasat
           </h2>
         </div>
-        <div className="flex flex-1 justify-end gap-8">
-          <div className="flex items-center gap-9">
+        {/* Hide these items on mobile and show them from medium screens */}
+        <div className="hidden md:flex flex-1 justify-end gap-4 md:gap-8">
+          <div className="flex items-center gap-4 md:gap-9">
             <Link
               className="text-[#121b0e] text-sm font-medium leading-normal"
               href="/">
@@ -37,10 +38,10 @@ const Header = () => {
             </Link>
           </div>
           <div className="flex gap-2">
-            <Button className="bg-primary flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#5de619] text-[#121b0e] text-sm font-bold leading-normal tracking-[0.015em]">
+            <Button className="bg-primary flex min-w-[64px] max-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-3 bg-[#5de619] text-[#121b0e] text-xs font-bold leading-normal tracking-[0.015em] md:h-10 md:min-w-[84px] md:px-4">
               <span className="truncate">Login</span>
             </Button>
-            <Button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#ebf3e7] text-[#121b0e] text-sm font-bold leading-normal tracking-[0.015em]">
+            <Button className="flex min-w-[64px] max-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-3 bg-[#ebf3e7] text-[#121b0e] text-xs font-bold leading-normal tracking-[0.015em] md:h-10 md:min-w-[84px] md:px-4">
               <span className="truncate">Sign up</span>
             </Button>
           </div>

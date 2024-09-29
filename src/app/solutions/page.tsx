@@ -95,7 +95,7 @@ const Solutions = () => {
             Rice field yellow stem borers prediction
           </p>
           <div className="flex gap-20">
-            <div className=" w-1/2">
+            <div className="w-full lg:w-1/2">
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
