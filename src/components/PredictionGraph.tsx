@@ -81,6 +81,7 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({
           formatter: (val: number) => `${val}`,
         },
       },
+      colors: ["#ff6347"],
     },
   };
 

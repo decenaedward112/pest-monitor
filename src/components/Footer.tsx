@@ -1,21 +1,18 @@
 import React from "react";
-
+import Image from "next/image";
 const Footer = () => {
   return (
     <footer className="text-gray-600 body-font bg-[#ebf3e7]">
-      <div className="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
+      <div className=" px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
         <div className="flex items-center gap-4 text-[#121b0e]">
-          <div className="size-4">
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
-                fill="currentColor"></path>
-            </svg>
+          <div className="size-12">
+            <Image
+              src="/assets/Siyasat.svg"
+              className="object-cover w-full h-64 md:h-full rounded-lg"
+              alt=""
+              width={1920}
+              height={1080}
+            />
           </div>
           <h2 className="text-[#121b0e] text-lg font-bold leading-tight tracking-[-0.015em]">
             Siyasat

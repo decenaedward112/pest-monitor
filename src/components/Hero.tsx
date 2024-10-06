@@ -22,9 +22,8 @@ const Hero = () => {
           </h1>
 
           <p className="pr-0 mb-6 text-xl  tracking-relaxed lg:pr-16 text-justify">
-            We ar on a mission to help farmers harness the power of data science
-            to grow more sustainably and profitably. Here are few ways we can
-            help you:
+            We are on a mission to help farmers harness the power of data
+            science to grow more sustainably and profitably.
           </p>
           <Link
             className=" flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#5de619] text-[#121b0e] text-sm font-bold leading-normal tracking-[0.015em]"

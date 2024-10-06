@@ -77,7 +77,7 @@ const Solutions = () => {
         rainfall_mm: weather.data.rain,
       };
       const prediction = await axios.post(
-        "http://192.168.1.4:5000/predict",
+        "http://192.168.1.7:5000/predict",
         inputData
       );
       setPred(prediction.data);
