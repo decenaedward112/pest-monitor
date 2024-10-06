@@ -83,7 +83,6 @@ const YieldLossGraph: React.FC<YieldLossGraphProps> = ({
           formatter: (val: number) => `${Math.round(val)}%`,
         },
       },
-      colors: ["#FF4560", "#00E396"],
     },
   };
 
