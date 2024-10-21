@@ -24,6 +24,7 @@ import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getPestManagementInfo } from "@/components/PestManagement";
 import Change from "@/components/Change";
+import WeatherForecast from "@/components/WeatherForecast";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -50,8 +51,7 @@ const Solutions = () => {
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState("");
   const [condition, setCondition] = useState("");
-  const [lat, setLat] = useState<number>();
-  const [long, setLong] = useState<number>();
+  const [weatherForecast, setWeatherForecast] = useState<any>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,8 +76,6 @@ const Solutions = () => {
       console.log("coordinates:", coordinates.data);
       if (!coordinates.data.results) {
         setOpen(true);
-        setLat(coordinates.data.results[0].latitude);
-        setLong(coordinates.data.results[0].longitude);
       }
       const weather = await axios.get(
         "https://api.open-meteo.com/v1/forecast",
@@ -91,6 +89,18 @@ const Solutions = () => {
           },
         }
       );
+
+      const forecast = await axios.get(
+        "https://api.open-meteo.com/v1/forecast",
+        {
+          params: {
+            latitude: coordinates.data.results[0].latitude,
+            longitude: coordinates.data.results[0].longitude,
+            daily: "temperature_2m_max",
+          },
+        }
+      );
+      setWeatherForecast(forecast.data.daily);
 
       const inputData = {
         crop_age_in_days: values.cropAge,
@@ -247,6 +257,7 @@ const Solutions = () => {
           <Loading />
         ) : (
           <div className="grid gap-16">
+            <WeatherForecast wf={weatherForecast} />
             {pred && (
               <PredictionGraph
                 title="Pest Incidence Prediction Per Week"
@@ -287,6 +298,7 @@ const Solutions = () => {
           </div>
         )}
       </div>
+
       {open && (
         <AlertDialog open={open} onOpenChange={setOpen}>
           <AlertDialogContent>
