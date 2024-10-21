@@ -21,9 +21,9 @@ import YieldLossGraph from "@/components/YieldLossGraph";
 import Loading from "@/components/Loading";
 import InvalidAddress from "@/components/InvalidAddress";
 import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getPestManagementInfo } from "@/components/PestManagement";
+import Change from "@/components/Change";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -50,6 +50,9 @@ const Solutions = () => {
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState("");
   const [condition, setCondition] = useState("");
+  const [lat, setLat] = useState<number>();
+  const [long, setLong] = useState<number>();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -57,7 +60,6 @@ const Solutions = () => {
     const cropStage = getCropStage(values.cropAge);
     setStage(cropStage);
     setCondition(values.type);
-    console.log("values: ", values);
     setLoading(true);
     try {
       const coordinates = await axios.get(
@@ -71,9 +73,11 @@ const Solutions = () => {
           },
         }
       );
-
+      console.log("coordinates:", coordinates.data);
       if (!coordinates.data.results) {
         setOpen(true);
+        setLat(coordinates.data.results[0].latitude);
+        setLong(coordinates.data.results[0].longitude);
       }
       const weather = await axios.get(
         "https://api.open-meteo.com/v1/forecast",
@@ -101,6 +105,7 @@ const Solutions = () => {
         inputData
       );
       setPred(prediction.data);
+      console.log(prediction.data);
     } catch (error) {
     } finally {
       setLoading(false);
@@ -250,10 +255,20 @@ const Solutions = () => {
                 implications={pred.pest_incidence_per_week.implications}
               />
             )}
-            {pred &&
-              stage &&
-              condition &&
-              getPestManagementInfo({ cropStage: stage, type: condition })}
+            <div className="flex justify-between">
+              {pred && (
+                <Change
+                  direction={pred.first_change.change_direction}
+                  value={pred.first_change.percentage_change}
+                  week={pred.first_change.week}
+                />
+              )}
+              {pred &&
+                stage &&
+                condition &&
+                getPestManagementInfo({ cropStage: stage, type: condition })}
+            </div>
+
             {pred && (
               <YieldLossGraph
                 actualYieldLoss={

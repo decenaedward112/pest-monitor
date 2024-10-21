@@ -11,7 +11,7 @@ const Header = () => {
           <div className="size-12">
             <Image
               src="/assets/Siyasat.svg"
-              className="object-cover w-full h-64 md:h-full rounded-lg"
+              className="object-cover  md:h-full rounded-lg"
               alt=""
               width={1920}
               height={1080}
