@@ -21,6 +21,9 @@ import YieldLossGraph from "@/components/YieldLossGraph";
 import Loading from "@/components/Loading";
 import InvalidAddress from "@/components/InvalidAddress";
 import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { getPestManagementInfo } from "@/components/PestManagement";
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -29,16 +32,32 @@ const formSchema = z.object({
     .number()
     .min(1, { message: "Enter a valid crop generation" }),
   area: z.coerce.number().min(1, { message: "Enter a valid land area" }),
+  type: z.enum(["eggs", "deadhearts", "ysb"], {
+    required_error: "You need to select a notification type.",
+  }),
 });
+
+const getCropStage = (cropAge: number) => {
+  if (cropAge >= 0 && cropAge <= 100) return "Vegetative";
+  if (cropAge >= 101 && cropAge <= 135) return "Reproductive";
+  if (cropAge >= 136) return "Harvest";
+  return "Unknown";
+};
 
 const Solutions = () => {
   const [pred, setPred] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [stage, setStage] = useState("");
+  const [condition, setCondition] = useState("");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const cropStage = getCropStage(values.cropAge);
+    setStage(cropStage);
+    setCondition(values.type);
+    console.log("values: ", values);
     setLoading(true);
     try {
       const coordinates = await axios.get(
@@ -68,6 +87,7 @@ const Solutions = () => {
           },
         }
       );
+
       const inputData = {
         crop_age_in_days: values.cropAge,
         crop_generation: values.cropGen,
@@ -77,7 +97,7 @@ const Solutions = () => {
         rainfall_mm: weather.data.rain,
       };
       const prediction = await axios.post(
-        "http://192.168.1.7:5000/predict",
+        "http://192.168.1.9:5000/predict",
         inputData
       );
       setPred(prediction.data);
@@ -168,6 +188,48 @@ const Solutions = () => {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Notify me about...</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1">
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="deadhearts" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Do you observe deadhearts or white earheads?
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="ysb" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Do you observe adult yellow stemborer moths?
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="eggs" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Are there orange or yellow hairy eggs on leaf
+                                blades?
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <Button className="bg-primary flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#5de619] text-[#121b0e] text-sm font-bold leading-normal tracking-[0.015em]">
                     <span className="truncate">Predict</span>
                   </Button>
@@ -179,23 +241,19 @@ const Solutions = () => {
         {loading ? (
           <Loading />
         ) : (
-          <div>
+          <div className="grid gap-16">
             {pred && (
               <PredictionGraph
-                title="Pest Incidence Prediction Per Hour"
-                xAxis={pred.pest_incidence_per_hour.x_axis}
-                yAxis={pred.pest_incidence_per_hour.y_axis}
-                scale={[0, 500, 1000, 1500, 2000, 2500, 3000, 3500]}
+                title="Pest Incidence Prediction Per Week"
+                xAxis={pred.pest_incidence_per_week.xaxis}
+                yAxis={pred.pest_incidence_per_week.yaxis}
+                implications={pred.pest_incidence_per_week.implications}
               />
             )}
-            {pred && (
-              <PredictionGraph
-                title="Pest Incidence Prediction Per Hour"
-                xAxis={pred.pest_incidence_per_day.x_axis}
-                yAxis={pred.pest_incidence_per_day.y_axis}
-                scale={[0, 25, 50, 75, 100, 125, 150]}
-              />
-            )}
+            {pred &&
+              stage &&
+              condition &&
+              getPestManagementInfo({ cropStage: stage, type: condition })}
             {pred && (
               <YieldLossGraph
                 actualYieldLoss={

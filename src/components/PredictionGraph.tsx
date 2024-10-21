@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
@@ -10,15 +10,17 @@ interface PredictionGraphProps {
   title: string;
   xAxis: number[];
   yAxis: number[];
-  scale: number[];
+  implications: string[];
 }
 
 const PredictionGraph: React.FC<PredictionGraphProps> = ({
   title,
   xAxis,
   yAxis,
-  scale,
+  implications,
 }) => {
+  const adjustedXAxis = xAxis.map((value) => value);
+
   const chartData: { series: ApexAxisChartSeries; options: ApexOptions } = {
     series: [
       {
@@ -54,15 +56,9 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({
         enabled: false,
       },
       xaxis: {
-        categories: xAxis, // Directly using number[]
-        labels: {
-          formatter: (value: string | number) => {
-            const numValue = Number(value);
-            return scale.includes(numValue) ? numValue.toString() : "";
-          },
-        },
+        categories: adjustedXAxis,
         title: {
-          text: "Time (in units)", // Customize the label for the x-axis
+          text: "Time (in weeks)",
         },
       },
       yaxis: {
@@ -77,10 +73,38 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({
         opacity: 1,
       },
       tooltip: {
+        shared: true,
+        intersect: false,
         y: {
-          formatter: (val: number) => `${val}`,
+          formatter: (val: number) => `${Math.round(val)}`,
+        },
+        x: {
+          formatter: (val: number) => {
+            const weekNumber = val;
+            return `Week ${weekNumber}`;
+          },
+        },
+        custom: function ({ series, seriesIndex, dataPointIndex }) {
+          return `
+      <div style="
+        padding: 10px; 
+        max-width: 300px; 
+        word-wrap: break-word; 
+        text-align: left; 
+        font-size: 14px; 
+        line-height: 1.4; 
+        overflow: auto; 
+        white-space: normal;
+      ">
+        <strong>Value:</strong> ${Math.round(
+          series[seriesIndex][dataPointIndex]
+        )}<br>
+        <strong>Implication:</strong> ${implications[dataPointIndex] || "N/A"}
+      </div>
+    `;
         },
       },
+
       colors: ["#7F00FF"],
     },
   };
