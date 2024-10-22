@@ -21,10 +21,25 @@ import YieldLossGraph from "@/components/YieldLossGraph";
 import Loading from "@/components/Loading";
 import InvalidAddress from "@/components/InvalidAddress";
 import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getPestManagementInfo } from "@/components/PestManagement";
 import Change from "@/components/Change";
 import WeatherForecast from "@/components/WeatherForecast";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const items = [
+  {
+    id: "deadhearts",
+    label: "Do you observe deadhearts or white earheads?",
+  },
+  {
+    id: "eggs",
+    label: "Are there orange or yellow hairy eggs on the lead blades?",
+  },
+  {
+    id: "ysb",
+    label: "Do you observe adult yellow stemborer moths?",
+  },
+] as const;
 
 const formSchema = z.object({
   city: z.string().min(4, { message: "Enter a valid city" }),
@@ -33,8 +48,8 @@ const formSchema = z.object({
     .number()
     .min(1, { message: "Enter a valid crop generation" }),
   area: z.coerce.number().min(1, { message: "Enter a valid land area" }),
-  type: z.enum(["eggs", "deadhearts", "ysb"], {
-    required_error: "You need to select a notification type.",
+  items: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one item.",
   }),
 });
 
@@ -50,16 +65,17 @@ const Solutions = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState("");
-  const [condition, setCondition] = useState("");
+  const [condition, setCondition] = useState<any>([]);
   const [weatherForecast, setWeatherForecast] = useState<any>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("values: ", values);
     const cropStage = getCropStage(values.cropAge);
     setStage(cropStage);
-    setCondition(values.type);
+    setCondition(values.items);
     setLoading(true);
     try {
       const coordinates = await axios.get(
@@ -111,7 +127,7 @@ const Solutions = () => {
         rainfall_mm: weather.data.rain,
       };
       const prediction = await axios.post(
-        "http://192.168.1.9:5000/predict",
+        "http://192.168.1.2:5000/predict",
         inputData
       );
       setPred(prediction.data);
@@ -205,46 +221,50 @@ const Solutions = () => {
                   />
                   <FormField
                     control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Notify me about...</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-1">
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="deadhearts" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Do you observe deadhearts or white earheads?
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="ysb" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Do you observe adult yellow stemborer moths?
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="eggs" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Are there orange or yellow hairy eggs on leaf
-                                blades?
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
+                    name="items"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormDescription>
+                            Select all that applies.
+                          </FormDescription>
+                        </div>
+                        {items.map((item) => (
+                          <FormField
+                            key={item.id}
+                            control={form.control}
+                            name="items"
+                            render={({ field }) => {
+                              const value = field.value ?? [];
+                              return (
+                                <FormItem
+                                  key={item.id}
+                                  className="flex flex-row items-start space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={value.includes(item.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...value, item.id])
+                                          : field.onChange(
+                                              value.filter((v) => v !== item.id)
+                                            );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    {item.label}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <Button className="bg-primary flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#5de619] text-[#121b0e] text-sm font-bold leading-normal tracking-[0.015em]">
                     <span className="truncate">Predict</span>
                   </Button>
