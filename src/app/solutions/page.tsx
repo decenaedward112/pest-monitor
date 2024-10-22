@@ -25,6 +25,7 @@ import { getPestManagementInfo } from "@/components/PestManagement";
 import Change from "@/components/Change";
 import WeatherForecast from "@/components/WeatherForecast";
 import { Checkbox } from "@/components/ui/checkbox";
+import DailyPrediction from "@/components/DailyPrediction";
 
 const items = [
   {
@@ -284,6 +285,21 @@ const Solutions = () => {
                 xAxis={pred.pest_incidence_per_week.xaxis}
                 yAxis={pred.pest_incidence_per_week.yaxis}
                 implications={pred.pest_incidence_per_week.implications}
+              />
+            )}
+            {pred && (
+              // <PredictionGraph
+              //   title="Pest Incidence Prediction Per Day"
+              //   xAxis={pred.pest_incidence_per_day.xaxis}
+              //   yAxis={pred.pest_incidence_per_day.yaxis}
+              //   implications={pred.pest_incidence_per_day.implications}
+              // />
+              <DailyPrediction
+                title="Pest Incidence Prediction Per Day"
+                xAxis={pred.pest_incidence_per_day.xaxis}
+                yAxis={pred.pest_incidence_per_day.yaxis}
+                scale={[0, 25, 50, 75, 100, 125, 150]}
+                implications={pred.pest_incidence_per_day.implications}
               />
             )}
             <div className="flex justify-between">
