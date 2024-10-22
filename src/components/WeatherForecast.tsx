@@ -1,6 +1,6 @@
 import React from "react";
-import { LuThermometerSun } from "react-icons/lu";
-
+import { GiThermometerCold } from "react-icons/gi";
+import { GiThermometerHot } from "react-icons/gi";
 interface WeatherData {
   time: string[]; // An array of time strings
   temperature_2m_max: number[]; // An array of max temperatures
@@ -28,7 +28,11 @@ const WeatherForecast = ({ wf }: WeatherProps) => {
             className="bg-white bg-opacity-10 backdrop-blur-lg p-4 rounded-lg text-center transition-transform transform hover:scale-105 hover:bg-opacity-20 grid place-items-center gap-2">
             <h3 className="text-xl font-semibold">{day}</h3>
             <div>
-              <LuThermometerSun size={50} />
+              {wf.temperature_2m_max[index] < 29 ? (
+                <GiThermometerCold size={50} />
+              ) : (
+                <GiThermometerHot size={50} />
+              )}
             </div>
             <p className="text-lg font-medium">
               {wf.temperature_2m_max[index]}°C
