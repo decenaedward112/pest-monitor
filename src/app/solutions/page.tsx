@@ -133,7 +133,7 @@ const Solutions = () => {
       );
       setPred(prediction.data);
       console.log(prediction.data);
-    } catch (error) {
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,8 @@ const Solutions = () => {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4">
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="city"
@@ -240,7 +241,8 @@ const Solutions = () => {
                               return (
                                 <FormItem
                                   key={item.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0">
+                                  className="flex flex-row items-start space-x-3 space-y-0"
+                                >
                                   <FormControl>
                                     <Checkbox
                                       checked={value.includes(item.id)}
